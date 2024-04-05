@@ -83,8 +83,9 @@ public class Controller : MonoBehaviour
         {
 
             var mousePos = Input.mousePosition;
-            if (mousePos.x < 60 * (Camera.main.pixelWidth / 800f))
+            if (mousePos.x > Camera.main.pixelWidth - (60 * (Camera.main.pixelWidth / 800f)))
             {
+                touchUse = TouchUse.UI;
                 return;
             }
             Vector3 clickPosition = Camera.main.ScreenToWorldPoint(mousePos);
@@ -125,16 +126,15 @@ public class Controller : MonoBehaviour
         }
 
 
-        if (Input.GetMouseButton(0) && Input.touchCount > 0 && (touchUse == TouchUse.Draw || touchUse == TouchUse.PanAndZoom))
+        if (!Input.GetMouseButton(0))
         {
-            //prevent resetting inputs if there is still a touch
-            return;
+            // reset inputs
+            lastMousePos = null;
+            touchUse = TouchUse.None;
+            drawState = DrawState.None;
+            inputDelayTimer = 0f;
         }
-        // reset inputs
-        lastMousePos = null;
-        touchUse = TouchUse.None;
-        drawState = DrawState.None;
-        inputDelayTimer = 0f;
+
 
     }
 

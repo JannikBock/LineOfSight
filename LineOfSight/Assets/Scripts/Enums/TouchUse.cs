@@ -10,6 +10,7 @@ using System.Threading.Tasks;
        None,
        Draw,
        PanAndZoom,
+       UI
        
     }
 

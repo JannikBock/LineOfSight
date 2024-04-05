@@ -41,6 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: ReferenceImage
+    uniqueID: 1220528865
+    locked: 0
+  - name: Raster
+    uniqueID: 3929618611
+    locked: 0
   - name: Tiles
     uniqueID: 4218364567
     locked: 0
