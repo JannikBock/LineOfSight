@@ -52,25 +52,24 @@ public class CamController : MonoBehaviour
             devices = WebCamTexture.devices;
             if (devices.Any())
             {
-                Debug.Log($"Webcam device found: {devices[0].name}" + (devices[0].isFrontFacing ? "Frontfacing" : ""));
-                StartDevice(devices[0]);
+                Debug.Log($"Webcam device found");
+                WebCamDevice deviceToUse = devices.FirstOrDefault(x => !x.isFrontFacing);
+                if(deviceToUse.Equals(default(WebCamDevice)))
+                {
+                    deviceToUse = devices[0];
+                }
+                Debug.Log($"Webcam to use: {deviceToUse.name}" + (deviceToUse.isFrontFacing ? " (Frontfacing)" : ""));
+                StartDevice(deviceToUse);
             }
             else
             {
-                Debug.LogError("no webcams found.");
+                Debug.LogError("No webcams found.");
             }
-            //for (int cameraIndex = 0; cameraIndex < devices.Length; ++cameraIndex)
-            //{
-            //    Debug.Log("devices[cameraIndex].name: ");
-            //    Debug.Log(devices[cameraIndex].name);
-            //    Debug.Log("devices[cameraIndex].isFrontFacing");
-            //    Debug.Log(devices[cameraIndex].isFrontFacing);
-            //    StartCamera();
-            //}
+
         }
         else
         {
-            Debug.Log("Access denied.");
+            Debug.Log("Access to webcam denied.");
         }
     }
 

@@ -20,6 +20,10 @@ public class Controller : MonoBehaviour
     private Color highlightColor = Color.cyan;
     private Color lowlightColor = Color.white;
 
+    private float autoSaveTime = 20f;
+    private float autoSaveTimer = 20f;
+    private bool autoSaveNeeded;
+
     private GridMap<Tile> grid = new GridMap<Tile>();
 
     public Player[] Players
@@ -66,6 +70,12 @@ public class Controller : MonoBehaviour
     private float mouseMoveSpeed = 2f;
 
     private float cameraStartSize = 1f;
+
+    private void Awake()
+    {
+        ReviveGameState();
+
+    }
     private void Start()
     {
         cameraStartSize = Camera.main.orthographicSize;
@@ -74,6 +84,36 @@ public class Controller : MonoBehaviour
     void Update()
     {
         HandleInput();
+
+        autoSaveTimer -= Time.deltaTime;
+        if(autoSaveTimer <= 0)
+        {
+            autoSaveTimer = autoSaveTime;
+            PersistGameState();
+            
+        }
+    }
+
+    private void ReviveGameState()
+    {
+        string serializedGrid = PlayerPrefs.GetString("GameState");
+        GridPersistance restoredGrid = JsonUtility.FromJson<GridPersistance>(serializedGrid);
+        if(restoredGrid != null && restoredGrid.tiles != null)
+        {
+            Debug.Log("Restoring gamestate.");
+            StartCoroutine(RestoreGrid(restoredGrid));
+        }
+
+    }
+
+    private IEnumerator RestoreGrid(GridPersistance restoredGrid)
+    {
+        foreach (var tile in restoredGrid.tiles)
+        {
+            SpawnTile(tile.pos);
+            yield return null;
+        }
+        Debug.Log("Game state resored.");
     }
 
     private void HandleInput()
@@ -198,11 +238,12 @@ public class Controller : MonoBehaviour
                     if (drawState == DrawState.None || drawState == DrawState.Draw)
                     {
                         drawState = DrawState.Draw;
-                        Debug.Log($"Spawn Tile at {clickPosition}");
-                        GameObject newTileObj = Instantiate(TilePrefab, new Vector3(x, y), Quaternion.identity);
-                        Tile newTile = newTileObj.RequireComponent<Tile>();
-                        grid[x, y] = newTile;
-                        newTile.Init(this, clickPosition);
+                        SpawnTile(clickPosition);
+                        //Debug.Log($"Spawn Tile at {clickPosition}");
+                        //GameObject newTileObj = Instantiate(TilePrefab, new Vector3(x, y), Quaternion.identity);
+                        //Tile newTile = newTileObj.RequireComponent<Tile>();
+                        //grid[x, y] = newTile;
+                        //newTile.Init(this, clickPosition);
                     }
 
                 }
@@ -266,6 +307,19 @@ public class Controller : MonoBehaviour
 
     }
 
+    private void SpawnTile(Vector2Int pos)
+    {
+        if(grid[pos.x, pos.y] == null)
+        {
+            Debug.Log($"Spawn Tile at {pos}");
+            GameObject newTileObj = Instantiate(TilePrefab, new Vector3(pos.x, pos.y), Quaternion.identity);
+            Tile newTile = newTileObj.RequireComponent<Tile>();
+            grid[pos.x, pos.y] = newTile;
+            newTile.Init(this, pos);
+        }
+
+    }
+
     public void ChangeEditMode(int newMode)
     {
         EditMode = (EditMode)newMode;
@@ -276,4 +330,13 @@ public class Controller : MonoBehaviour
         return grid[x, y] != null;
     }
 
+
+    public void PersistGameState()
+    {
+        Debug.Log("Persisting Gamestate");
+        GridPersistance gridToPersist = new GridPersistance(grid) ;
+        string serializedGrid = JsonUtility.ToJson(gridToPersist);
+        PlayerPrefs.SetString("GameState", serializedGrid);
+        PlayerPrefs.Save();
+    }
 }

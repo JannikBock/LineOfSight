@@ -20,12 +20,16 @@ public class Tile : MonoBehaviour
         }
     }
 
-    private Vector2Int pos;
+    public Vector2Int Pos
+    {
+        get;
+        private set;
+    }
 
     public void Init(Controller inController, Vector2Int inPos)
     {
         controller = inController;
-        pos = inPos;
+        Pos = inPos;
     }
 
     public bool CanSeeTile(Vector2Int endCell)
@@ -33,7 +37,7 @@ public class Tile : MonoBehaviour
         //Debug.Log($"Input start cell {pos}");
         //Debug.Log($"Input end cell {endCell}");
 
-        Vector2 gradient = endCell - pos;
+        Vector2 gradient = endCell - Pos;
         //Debug.Log($"Gradient {gradient}");
 
         int maxCursorCount;
@@ -50,7 +54,7 @@ public class Tile : MonoBehaviour
         //Debug.Log($"Gradient devided {gradient}");
         //Debug.Log($"maxCursorCount {maxCursorCount}");
 
-        Vector2 cursor = pos;
+        Vector2 cursor = Pos;
         //Debug.Log($"Visiting Start cell {cursor}");
         if (!controller.IsSeeThrough((int)cursor.x, (int)cursor.y))
         {
