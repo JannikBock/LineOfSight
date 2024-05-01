@@ -28,7 +28,7 @@ public class Controller : MonoBehaviour
 
     private bool preventClick;
 
-    private GridMap<Tile> grid = new GridMap<Tile>();
+    public GridMap<Tile> Grid { get; set; } = new GridMap<Tile>();
 
     public Player[] Players
     {
@@ -109,7 +109,7 @@ public class Controller : MonoBehaviour
 
     public void TruncateGrid()
     {
-        foreach (var tile in grid.GetAll().ToList())
+        foreach (var tile in Grid.GetAll().ToList())
         {
             RemoveTile(tile.Value);
         }
@@ -153,7 +153,7 @@ public class Controller : MonoBehaviour
         {
 
             var mousePos = Input.mousePosition;
-            if (mousePos.x > Camera.main.pixelWidth - (185 * (Camera.main.pixelWidth / 800f)))
+            if (mousePos.x > Camera.main.pixelWidth - ((180 + 4) * (Camera.main.pixelHeight / 500f)))
             {
                 touchUse = TouchUse.UI;
                 return;
@@ -285,7 +285,7 @@ public class Controller : MonoBehaviour
 
     private void DrawTile(Vector2Int pos)
     {
-        Tile existingTile = grid[pos.x, pos.y];
+        Tile existingTile = Grid[pos.x, pos.y];
         if (existingTile == null)
         {
             if (drawState == DrawState.None || drawState == DrawState.Draw)
@@ -312,7 +312,7 @@ public class Controller : MonoBehaviour
         }
         drawState = DrawState.Single;
 
-        Tile tile = grid[pos.x, pos.y];
+        Tile tile = Grid[pos.x, pos.y];
         if (tile == null)
         {
             return;
@@ -328,7 +328,7 @@ public class Controller : MonoBehaviour
         }
         drawState = DrawState.Single;
 
-        Tile tile = grid[pos.x, pos.y];
+        Tile tile = Grid[pos.x, pos.y];
         if (tile != null)
         {
             Player existingPlayer = Players.FirstOrDefault(x => x != null && x.Pos == pos);
@@ -363,7 +363,7 @@ public class Controller : MonoBehaviour
         {
             return;
         }
-        grid[tile.Pos.x, tile.Pos.y] = null;
+        Grid[tile.Pos.x, tile.Pos.y] = null;
         Player playerToDestroy
         = Players.FirstOrDefault(x => x != null && x.Pos == tile.Pos);
         if (playerToDestroy != null)
@@ -377,13 +377,13 @@ public class Controller : MonoBehaviour
 
     private void SpawnTile(Vector2Int pos)
     {
-        if(grid[pos.x, pos.y] == null)
+        if(Grid[pos.x, pos.y] == null)
         {
             Debug.Log($"Spawn Tile at {pos}");
             GameObject newTileObj = Instantiate(TilePrefab, new Vector3(pos.x, pos.y), Quaternion.identity);
             Tile newTile = newTileObj.RequireComponent<Tile>();
-            grid[pos.x, pos.y] = newTile;
-            newTile.Init(this, pos);
+            Grid[pos.x, pos.y] = newTile;
+            newTile.Init(pos);
         }
 
     }
@@ -398,17 +398,11 @@ public class Controller : MonoBehaviour
         EditMode = (EditMode)newMode;
     }
 
-    public bool IsSeeThrough(int x, int y, Vector2Int pos)
-    {  
-        return pos == new Vector2(x, y) || (
-            grid[x, y] != null && !grid[x, y].HasObstacle);
-    }
-
 
     public void PersistGameState()
     {
         Debug.Log("Persisting Gamestate");
-        GridPersistance gridToPersist = new GridPersistance(grid) ;
+        GridPersistance gridToPersist = new GridPersistance(Grid) ;
         string serializedGrid = JsonUtility.ToJson(gridToPersist);
         PlayerPrefs.SetString(Constants.GameState, serializedGrid);
         PlayerPrefs.Save();

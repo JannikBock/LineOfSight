@@ -28,6 +28,7 @@ public static class Vector2Extension
 
     public static Vector2 ToVector3(this Vector2 vector2)
     {
-        return new Vector3(vector2.x, vector2.y,0f);
+        return new Vector3(vector2.x, vector2.y, 0f);
     }
 }
+
