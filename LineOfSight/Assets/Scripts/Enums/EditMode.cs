@@ -8,6 +8,7 @@ using System.Threading.Tasks;
     public enum EditMode
     {
        Tile,
-       Player
+       Player,
+       Obstacle
     }
 

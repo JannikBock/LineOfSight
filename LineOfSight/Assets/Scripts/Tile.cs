@@ -8,6 +8,8 @@ public class Tile : MonoBehaviour
 
     [SerializeField]
     GameObject[] InSightHighlight;
+    [SerializeField]
+    GameObject Obstacle;
 
 
     private bool _isInSight = false;
@@ -17,6 +19,17 @@ public class Tile : MonoBehaviour
         set
         {
             _isInSight = value;
+        }
+    }
+
+    private bool _hasObstacle = false;
+    public bool HasObstacle
+    {
+        get { return _hasObstacle; }
+        set
+        {
+            _hasObstacle = value;
+            Obstacle.SetActive(_hasObstacle);
         }
     }
 
@@ -56,7 +69,7 @@ public class Tile : MonoBehaviour
 
         Vector2 cursor = Pos;
         //Debug.Log($"Visiting Start cell {cursor}");
-        if (!controller.IsSeeThrough((int)cursor.x, (int)cursor.y))
+        if (!controller.IsSeeThrough((int)cursor.x, (int)cursor.y, Pos))
         {
             //Debug.Log($"Start Cell occupied {cursor}");
             return false;
@@ -70,7 +83,7 @@ public class Tile : MonoBehaviour
 
             Vector2 roundedCursor = RoundVector(cursor - smallDelta * gradient);
             //Debug.Log($"Visiting cell {roundedCursor} for cursor {cursor}");
-            if (!controller.IsSeeThrough((int)roundedCursor.x, (int)roundedCursor.y))
+            if (!controller.IsSeeThrough((int)roundedCursor.x, (int)roundedCursor.y, Pos))
             {
                 //Debug.Log($"Cell occupied {roundedCursor}");
                 return false;
@@ -80,7 +93,7 @@ public class Tile : MonoBehaviour
             {
                 //Debug.Log("Secound point is on different tile.");
                 //Debug.Log($"Visiting secound cell {roundedCursor2} for cursor {cursor}");
-                if (!controller.IsSeeThrough((int)roundedCursor2.x, (int)roundedCursor2.y))
+                if (!controller.IsSeeThrough((int)roundedCursor2.x, (int)roundedCursor2.y, Pos))
                 {
                     //Debug.Log($"Cell occupied {roundedCursor2}");
                     return false;
@@ -136,7 +149,7 @@ public class Tile : MonoBehaviour
         }
 
         IsInSight = playerInSight;
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(Random.Range(1f,2f));
         coroutineRunning = false;
     }
 

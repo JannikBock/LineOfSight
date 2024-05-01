@@ -22,3 +22,12 @@ public static class Vector3Extension
         return new Vector2(vector3.x, vector3.y);
     }
 }
+
+public static class Vector2Extension
+{
+
+    public static Vector2 ToVector3(this Vector2 vector2)
+    {
+        return new Vector3(vector2.x, vector2.y,0f);
+    }
+}
