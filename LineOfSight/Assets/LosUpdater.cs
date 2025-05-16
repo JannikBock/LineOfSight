@@ -17,15 +17,23 @@ public class LosUpdater : MonoBehaviour
     {
         if (!coroutineRunning)
         {
+            coroutineRunning = true;
             StartCoroutine(UpdateLos());
         }
     }
 
     private IEnumerator UpdateLos()
     {
-        var allTiles = controller.Grid.GetAll().ToList();
-        foreach (var tile in allTiles)
+        int index = 0;
+        while(true)
         {
+            
+            KeyValuePair<Vector2Int, Tile> tile = controller.Grid.GetByIndex(index++);
+            if(tile.Equals(default(KeyValuePair<Vector2Int, Tile>)) || tile.Value==null)
+            {
+                break;
+            }
+
             bool playerInSight = false;
 
             for (int i = 0; i < Constants.MaxPlayerCount; i++)
@@ -44,13 +52,17 @@ public class LosUpdater : MonoBehaviour
                 else
                 {
                     tile.Value.InSightHighlight[i].SetActive(false);
-                }      
+                }
             }
 
             tile.Value.IsInSight = playerInSight;
-            yield return null;
-        }
+            if(index%5 == 0)
+            {
+                //yield return new WaitForSeconds(0.1f);
+                yield return null;
+            }
 
+        }
         
         coroutineRunning = false;
     }
@@ -79,7 +91,7 @@ public class LosUpdater : MonoBehaviour
 
         Vector2 cursor = tile.Pos;
         //Debug.Log($"Visiting Start cell {cursor}");
-        if (!IsSeeThrough((int)cursor.x, (int)cursor.y, tile.Pos))
+        if (!IsSeeThrough(controller.Grid[(int)cursor.x, (int)cursor.y] , tile.Pos, endCell))
         {
             //Debug.Log($"Start Cell occupied {cursor}");
             return false;
@@ -93,7 +105,7 @@ public class LosUpdater : MonoBehaviour
 
             Vector2 roundedCursor = RoundVector(cursor - smallDelta * gradient);
             //Debug.Log($"Visiting cell {roundedCursor} for cursor {cursor}");
-            if (!IsSeeThrough((int)roundedCursor.x, (int)roundedCursor.y, tile.Pos))
+            if (!IsSeeThrough(controller.Grid[(int)roundedCursor.x, (int)roundedCursor.y], tile.Pos, endCell))
             {
                 //Debug.Log($"Cell occupied {roundedCursor}");
                 return false;
@@ -103,7 +115,7 @@ public class LosUpdater : MonoBehaviour
             {
                 //Debug.Log("Secound point is on different tile.");
                 //Debug.Log($"Visiting secound cell {roundedCursor2} for cursor {cursor}");
-                if (!IsSeeThrough((int)roundedCursor2.x, (int)roundedCursor2.y, tile.Pos))
+                if (!IsSeeThrough(controller.Grid[(int)roundedCursor2.x, (int)roundedCursor2.y], tile.Pos, endCell))
                 {
                     //Debug.Log($"Cell occupied {roundedCursor2}");
                     return false;
@@ -119,10 +131,15 @@ public class LosUpdater : MonoBehaviour
         return new Vector2((int)Mathf.Round(input.x), (int)Mathf.Round(input.y)); // no midpoint away from zero option :(
     }
 
-    private bool IsSeeThrough(int x, int y, Vector2Int pos)
+    private bool IsSeeThrough(Tile t, Vector2Int startPos, Vector2Int endPos)
     {
-        return pos == new Vector2(x, y) || (
-            controller.Grid[x, y] != null && !controller.Grid[x, y].HasObstacle);
+        if(t == null)
+        {
+            return false;
+        }
+        return startPos == t.Pos ||
+            endPos == t.Pos
+            || !t.HasObstacle;
     }
 
 }

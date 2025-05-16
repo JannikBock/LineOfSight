@@ -256,7 +256,6 @@ public class Controller : MonoBehaviour
             float clampedYPos = Mathf.Clamp(Camera.main.transform.position.y, -maxCameraPosition, maxCameraPosition);
             Camera.main.transform.position = new Vector3(clampedXPos, clampedYPos, Camera.main.transform.position.z); ;
 
-                lastMousePos = currentMousePos;
         }
         lastMousePos = currentMousePos;
 
